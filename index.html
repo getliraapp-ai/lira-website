@@ -80,11 +80,44 @@
     }
 
     h1 {
-      font-size: clamp(42px, 7vw, 82px);
-      line-height: 1.08;
-      margin-bottom: 22px;
-    }
+      font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.08;
+  margin-bottom: 18px;
+  font-weight: 900;
+  letter-spacing: 4px;
 
+  background: linear-gradient(
+    90deg,
+    #ffffff,
+    #ffd6ff,
+    #c4b5fd,
+    #93c5fd,
+    #ffffff
+  );
+
+  background-size: 300% 300%;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: glow 6s ease infinite;
+
+  text-shadow:
+    0 0 12px rgba(255,255,255,0.25),
+    0 0 30px rgba(168,85,247,0.25);
+    }
+@keyframes glow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
     .slogan {
       font-size: clamp(26px, 4vw, 46px);
       font-weight: bold;
