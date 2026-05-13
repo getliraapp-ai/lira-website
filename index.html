@@ -3,271 +3,319 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LIRA | Sevgi ile hatırlar, Sevgi ile planlar</title>
+  <title>LIRA | Sevgi ile hatırlar, sevgi ile planlar</title>
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
     }
 
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      min-height: 100vh;
+    body{
+      font-family:Arial, Helvetica, sans-serif;
+      min-height:100vh;
       background:
-        radial-gradient(circle at top left, #ff8fab 0, transparent 35%),
-        radial-gradient(circle at bottom right, #7c3aed 0, transparent 35%),
-        linear-gradient(135deg, #1e1b4b, #312e81, #be185d);
-      color: white;
-      overflow-x: hidden;
+      radial-gradient(circle at top left,#ff8fab 0,transparent 35%),
+      radial-gradient(circle at bottom right,#7c3aed 0,transparent 35%),
+      linear-gradient(135deg,#1e1b4b,#312e81,#be185d);
+
+      color:white;
+      overflow-x:hidden;
     }
 
-    header {
-      width: 100%;
-      padding: 28px 8%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    header{
+      width:100%;
+      padding:28px 8%;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      font-size: 28px;
-      font-weight: bold;
-      letter-spacing: 2px;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      font-size:24px;
+      font-weight:bold;
+      letter-spacing:2px;
     }
 
-    .brand img {
-      width: 54px;
-      height: 54px;
-      border-radius: 16px;
+    .brand img{
+      width:54px;
+      height:54px;
+      border-radius:16px;
     }
 
-    .tag {
-      padding: 10px 18px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.14);
-      backdrop-filter: blur(12px);
-      font-size: 14px;
+    .tag{
+      padding:10px 18px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.14);
+      backdrop-filter:blur(12px);
+      font-size:14px;
     }
 
-    .hero {
-      min-height: calc(100vh - 100px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 8%;
-      text-align: center;
+    .hero{
+      min-height:calc(100vh - 100px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:40px 8%;
+      text-align:center;
     }
 
-    .card {
-      max-width: 960px;
-      padding: 56px 42px;
-      border-radius: 36px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.18);
-      box-shadow: 0 30px 90px rgba(0,0,0,0.28);
-      backdrop-filter: blur(18px);
+    .card{
+      max-width:960px;
+      padding:56px 42px;
+      border-radius:36px;
+      background:rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.18);
+      box-shadow:0 30px 90px rgba(0,0,0,0.28);
+      backdrop-filter:blur(18px);
     }
 
-    .logo-main {
-      width: 150px;
-      margin-bottom: 28px;
-      filter: drop-shadow(0 12px 24px rgba(0,0,0,0.25));
+    .logo-main{
+      width:150px;
+      margin-bottom:28px;
+      filter:drop-shadow(0 12px 24px rgba(0,0,0,0.25));
     }
 
-    h1 {
-      font-size: clamp(34px, 5vw, 58px);
-  line-height: 1.08;
-  margin-bottom: 18px;
-  font-weight: 900;
-  letter-spacing: 4px;
+    h1{
+      font-size:clamp(34px,5vw,58px);
+      line-height:1.08;
+      margin-bottom:18px;
+      font-weight:900;
+      letter-spacing:4px;
 
-  background: linear-gradient(
-    90deg,
-    #ffffff,
-    #ffd6ff,
-    #c4b5fd,
-    #93c5fd,
-    #ffffff
-  );
+      background:linear-gradient(
+      90deg,
+      #ffffff,
+      #ffd6ff,
+      #c4b5fd,
+      #93c5fd,
+      #ffffff
+      );
 
-  background-size: 300% 300%;
+      background-size:300% 300%;
 
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
 
-  animation: glow 6s ease infinite;
+      animation:glow 6s ease infinite;
 
-  text-shadow:
-    0 0 12px rgba(255,255,255,0.25),
-    0 0 30px rgba(168,85,247,0.25);
-    }
-@keyframes glow {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
-    .slogan {
-      font-size: clamp(26px, 4vw, 46px);
-      font-weight: bold;
-      margin-bottom: 24px;
-      background: linear-gradient(90deg, #fff, #ffe4e6, #fbcfe8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      text-shadow:
+      0 0 12px rgba(255,255,255,0.25),
+      0 0 30px rgba(168,85,247,0.25);
     }
 
-    .desc {
-      max-width: 760px;
-      margin: 0 auto;
-      font-size: 20px;
-      line-height: 1.7;
-      color: #f3f4f6;
-    }
+    @keyframes glow{
 
-    .features {
-      margin-top: 42px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 16px;
-    }
-
-    .feature {
-      padding: 20px;
-      border-radius: 22px;
-      background: rgba(255,255,255,0.13);
-      border: 1px solid rgba(255,255,255,0.14);
-    }
-
-    .feature span {
-      font-size: 32px;
-      display: block;
-      margin-bottom: 10px;
-    }
-
-    .buttons {
-      margin-top: 42px;
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 16px 28px;
-      border-radius: 999px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: 0.25s;
-    }
-
-    .primary {
-      background: white;
-      color: #7c3aed;
-    }
-
-    .secondary {
-      color: white;
-      border: 1px solid rgba(255,255,255,0.35);
-      background: rgba(255,255,255,0.08);
-    }
-
-    .btn:hover {
-      transform: translateY(-4px);
-    }
-
-    footer {
-      text-align: center;
-      padding: 28px;
-      color: #e5e7eb;
-      font-size: 14px;
-    }
-
-    @media (max-width: 640px) {
-      header {
-        padding: 22px 6%;
+      0%{
+        background-position:0% 50%;
       }
 
-      .tag {
-        display: none;
+      50%{
+        background-position:100% 50%;
       }
 
-      .card {
-        padding: 40px 24px;
+      100%{
+        background-position:0% 50%;
       }
 
-      .desc {
-        font-size: 17px;
-      }
     }
+
+    .slogan{
+      font-size:clamp(26px,4vw,46px);
+      font-weight:bold;
+      margin-bottom:24px;
+
+      background:linear-gradient(
+      90deg,
+      #fff,
+      #ffe4e6,
+      #fbcfe8
+      );
+
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    .desc{
+      max-width:760px;
+      margin:0 auto;
+      font-size:20px;
+      line-height:1.7;
+      color:#f3f4f6;
+    }
+
+    .features{
+      margin-top:42px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+      gap:16px;
+    }
+
+    .feature{
+      padding:20px;
+      border-radius:22px;
+      background:rgba(255,255,255,0.13);
+      border:1px solid rgba(255,255,255,0.14);
+      transition:0.3s;
+    }
+
+    .feature:hover{
+      transform:translateY(-6px);
+      background:rgba(255,255,255,0.18);
+    }
+
+    .feature span{
+      font-size:32px;
+      display:block;
+      margin-bottom:10px;
+    }
+
+    .buttons{
+      margin-top:42px;
+      display:flex;
+      justify-content:center;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      padding:16px 28px;
+      border-radius:999px;
+      text-decoration:none;
+      font-weight:bold;
+      transition:0.25s;
+      font-size:17px;
+    }
+
+    .primary{
+      background:white;
+      color:#7c3aed;
+    }
+
+    .secondary{
+      color:white;
+      border:1px solid rgba(255,255,255,0.35);
+      background:rgba(255,255,255,0.08);
+    }
+
+    .btn:hover{
+      transform:translateY(-4px) scale(1.04);
+    }
+
+    footer{
+      text-align:center;
+      padding:28px;
+      color:#e5e7eb;
+      font-size:14px;
+    }
+
+    @media (max-width:640px){
+
+      header{
+        padding:22px 6%;
+      }
+
+      .tag{
+        display:none;
+      }
+
+      .card{
+        padding:40px 24px;
+      }
+
+      .desc{
+        font-size:17px;
+      }
+
+    }
+
   </style>
 </head>
 
 <body>
 
-  <header>
-    <div class="brand">
-      <img src="logo.png" alt="LIRA Logo" />
-      <span>LIRA</span>
+<header>
+
+  <div class="brand">
+    <img src="logo.png" alt="LIRA Logo">
+    <span>LIRA</span>
+  </div>
+
+  <div class="tag">
+    Yakında Yayında
+  </div>
+
+</header>
+
+<section class="hero">
+
+  <div class="card">
+
+    <img class="logo-main" src="logo.png" alt="LIRA Logo">
+
+    <h1>LIRA</h1>
+
+    <div class="slogan">
+      Sevgi ile hatırlar,<br>
+      sevgi ile planlar.
     </div>
-    <div class="tag">Yakında Yayında</div>
-  </header>
 
-  <section class="hero">
-    <div class="card">
-      <img class="logo-main" src="logo.png" alt="LIRA Logo" />
+    <p class="desc">
+      LIRA; sevdiklerinizin özel günlerini,
+      önemli anlarını ve ihtiyaçlarını sizin yerinize
+      hatırlayan yapay zeka destekli kişisel asistandır.
+    </p>
 
-      <h1>LIRA</h1>
+    <div class="features">
 
-      <div class="slogan">
-        Sevgi ile hatırlar,<br />
-        sevgi ile planlar.
+      <div class="feature">
+        <span>🎂</span>
+        Özel günleri hatırlar
       </div>
 
-      <p class="desc">
-        LIRA; sevdiklerinizin özel günlerini, önemli anlarını ve ihtiyaçlarını
-        sizin yerinize hatırlayan AI destekli kişisel asistanınız.
-      </p>
-
-      <div class="features">
-        <div class="feature">
-          <span>🎂</span>
-          Özel günleri hatırlar
-        </div>
-        <div class="feature">
-          <span>🎁</span>
-          Hediye fikirleri sunar
-        </div>
-        <div class="feature">
-          <span>💊</span>
-          İlaç takibi yapar
-        </div>
-        <div class="feature">
-          <span>📲</span>
-          Zamanında bildirir
-        </div>
+      <div class="feature">
+        <span>🎁</span>
+        Akıllı hediye önerileri sunar
       </div>
 
-      <div class="buttons">
-        <a class="btn primary" href="mailto:hello@getliraapp.com">İletişime Geç</a>
-        <a class="btn secondary" href="#">Çok Yakında</a>
+      <div class="feature">
+        <span>💊</span>
+        İlaç ve rutin takibi yapar
       </div>
+
+      <div class="feature">
+        <span>📲</span>
+        Zamanında bildirim gönderir
+      </div>
+
     </div>
-  </section>
 
-  <footer>
-    © 2026 LIRA — Sevgi ile hatırlar, sevgi ile planlar.
-  </footer>
+    <div class="buttons">
+
+     <a class="btn primary"
+href="https://wa.me/905431623520?text=Merhaba%20LIRA,%20bilgi%20almak%20istiyorum."
+target="_blank">
+WhatsApp ile İletişim
+</a>
+
+      <a class="btn secondary" href="#">
+        Çok Yakında
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+
+<footer>
+  © 2026 LIRA — Sevgi ile hatırlar, sevgi ile planlar.
+</footer>
 
 </body>
 </html>
