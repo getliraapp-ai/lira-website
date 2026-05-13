@@ -2,88 +2,239 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LIRA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIRA | Sevgi ile hatırlar, sevgi ile planlar</title>
 
   <style>
-    body{
-      margin:0;
-      font-family:Arial, Helvetica, sans-serif;
-      background:linear-gradient(135deg,#6C63FF,#8E2DE2,#FF6FD8);
-      min-height:100vh;
-      color:white;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      text-align:center;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .container{
-      width:90%;
-      max-width:700px;
-      background:rgba(255,255,255,0.12);
-      padding:40px;
-      border-radius:25px;
-      backdrop-filter:blur(10px);
-      box-shadow:0 10px 40px rgba(0,0,0,0.3);
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, #ff8fab 0, transparent 35%),
+        radial-gradient(circle at bottom right, #7c3aed 0, transparent 35%),
+        linear-gradient(135deg, #1e1b4b, #312e81, #be185d);
+      color: white;
+      overflow-x: hidden;
     }
 
-    img{
-      width:160px;
-      margin-bottom:20px;
+    header {
+      width: 100%;
+      padding: 28px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    h1{
-      font-size:56px;
-      margin-bottom:10px;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 2px;
     }
 
-    p{
-      font-size:20px;
-      line-height:1.6;
-      opacity:0.95;
+    .brand img {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
     }
 
-    .btn{
-      display:inline-block;
-      margin-top:30px;
-      padding:15px 35px;
-      border-radius:50px;
-      background:white;
-      color:#6C63FF;
-      text-decoration:none;
-      font-weight:bold;
-      font-size:18px;
-      transition:0.3s;
+    .tag {
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.14);
+      backdrop-filter: blur(12px);
+      font-size: 14px;
     }
 
-    .btn:hover{
-      transform:scale(1.05);
+    .hero {
+      min-height: calc(100vh - 100px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 8%;
+      text-align: center;
+    }
+
+    .card {
+      max-width: 960px;
+      padding: 56px 42px;
+      border-radius: 36px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.28);
+      backdrop-filter: blur(18px);
+    }
+
+    .logo-main {
+      width: 150px;
+      margin-bottom: 28px;
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,0.25));
+    }
+
+    h1 {
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: 1.08;
+      margin-bottom: 22px;
+    }
+
+    .slogan {
+      font-size: clamp(26px, 4vw, 46px);
+      font-weight: bold;
+      margin-bottom: 24px;
+      background: linear-gradient(90deg, #fff, #ffe4e6, #fbcfe8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .desc {
+      max-width: 760px;
+      margin: 0 auto;
+      font-size: 20px;
+      line-height: 1.7;
+      color: #f3f4f6;
+    }
+
+    .features {
+      margin-top: 42px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 16px;
+    }
+
+    .feature {
+      padding: 20px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.13);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+
+    .feature span {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .buttons {
+      margin-top: 42px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 16px 28px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.25s;
+    }
+
+    .primary {
+      background: white;
+      color: #7c3aed;
+    }
+
+    .secondary {
+      color: white;
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .btn:hover {
+      transform: translateY(-4px);
+    }
+
+    footer {
+      text-align: center;
+      padding: 28px;
+      color: #e5e7eb;
+      font-size: 14px;
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 22px 6%;
+      }
+
+      .tag {
+        display: none;
+      }
+
+      .card {
+        padding: 40px 24px;
+      }
+
+      .desc {
+        font-size: 17px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-<div class="container">
+  <header>
+    <div class="brand">
+      <img src="logo.png" alt="LIRA Logo" />
+      <span>LIRA</span>
+    </div>
+    <div class="tag">Yakında Yayında</div>
+  </header>
 
-<img src="logo.png" alt="LIRA Logo">
+  <section class="hero">
+    <div class="card">
+      <img class="logo-main" src="logo.png" alt="LIRA Logo" />
 
-<h1>LIRA</h1>
+      <h1>LIRA</h1>
 
-<p>
-Yapay zeka destekli özel gün ve hediye asistanı.
-</p>
+      <div class="slogan">
+        Sevgi ile hatırlar,<br />
+        sevgi ile planlar.
+      </div>
 
-<p>
-Sevdiklerinizi unutmayın, doğru hediyeyi yapay zeka ile bulun.
-</p>
+      <p class="desc">
+        LIRA; sevdiklerinizin özel günlerini, önemli anlarını ve ihtiyaçlarını
+        sizin yerinize hatırlayan AI destekli kişisel asistanınız.
+      </p>
 
-<a class="btn" href="#">
-Yakında Başlıyor
-</a>
+      <div class="features">
+        <div class="feature">
+          <span>🎂</span>
+          Özel günleri hatırlar
+        </div>
+        <div class="feature">
+          <span>🎁</span>
+          Hediye fikirleri sunar
+        </div>
+        <div class="feature">
+          <span>💊</span>
+          İlaç takibi yapar
+        </div>
+        <div class="feature">
+          <span>📲</span>
+          Zamanında bildirir
+        </div>
+      </div>
 
-</div>
+      <div class="buttons">
+        <a class="btn primary" href="mailto:hello@getliraapp.com">İletişime Geç</a>
+        <a class="btn secondary" href="#">Çok Yakında</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © 2026 LIRA — Sevgi ile hatırlar, sevgi ile planlar.
+  </footer>
 
 </body>
 </html>
