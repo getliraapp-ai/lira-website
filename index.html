@@ -1,10 +1,130 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-  <title>LIRA</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIRA | AI Destekli Kişisel Asistan</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #eef6ff, #f7f2ff);
+      color: #111827;
+    }
+
+    header {
+      padding: 24px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    .hero {
+      min-height: 75vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 8%;
+    }
+
+    .hero-box {
+      max-width: 850px;
+      background: white;
+      padding: 60px 40px;
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 20px;
+      line-height: 1.6;
+      color: #4b5563;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 36px;
+    }
+
+    .feature {
+      background: #f9fafb;
+      padding: 20px;
+      border-radius: 18px;
+      font-size: 16px;
+    }
+
+    .button {
+      display: inline-block;
+      margin-top: 36px;
+      padding: 16px 28px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 999px;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 34px;
+      }
+
+      p {
+        font-size: 17px;
+      }
+    }
+  </style>
 </head>
-<body style="font-family: Arial; text-align:center; padding-top:100px;">
-  <h1>LIRA</h1>
-  <p>AI-powered personal assistant platform</p>
+<body>
+
+  <header>
+    <div class="logo">LIRA</div>
+    <div>Yakında</div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-box">
+      <h1>Hayatını hatırlayan AI destekli kişisel asistan</h1>
+      <p>
+        LIRA; özel günleri, ilaç saatlerini, önemli notları ve günlük hatırlatmaları
+        senin yerine takip eden akıllı yaşam asistanıdır.
+      </p>
+
+      <div class="features">
+        <div class="feature">🎂 Özel gün hatırlatma</div>
+        <div class="feature">💊 İlaç takip sistemi</div>
+        <div class="feature">🤖 AI destekli hafıza</div>
+        <div class="feature">📲 WhatsApp bildirimleri</div>
+      </div>
+
+      <a class="button" href="mailto:hello@getliraapp.com">İletişime Geç</a>
+    </div>
+  </section>
+
+  <footer>
+    © 2026 LIRA — AI destekli kişisel yaşam asistanı
+  </footer>
+
 </body>
 </html>
