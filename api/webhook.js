@@ -58,6 +58,16 @@ async function saveMemory(phone, key, value) {
 }
 
 function extractDirectMemory(text) {
+  const lowerText = text.toLowerCase();
+
+if (
+  lowerText.includes("ne zaman") ||
+  lowerText.includes("kim") ||
+  lowerText.includes("nedir") ||
+  lowerText.includes("?")
+) {
+  return null;
+}
   const nameMatch = text.match(
     /(?:benim adım|adım)\s+([a-zA-ZçğıöşüÇĞİÖŞÜ]+)/i
   );
