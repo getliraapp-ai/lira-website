@@ -56,9 +56,8 @@ export default async function handler(req, res) {
 
         const aiData = await aiResponse.json();
 
-        const reply =
-          aiData.choices?.[0]?.message?.content ||
-          "Şu an cevap veremiyorum.";
+       const reply =
+  "Merhaba 👋 Ben LIRA. Mesajını aldım. Yakında sana özel gün, hediye ve hatırlatma konularında yardımcı olacağım.";
 
         // WhatsApp mesaj gönder
         await fetch(
