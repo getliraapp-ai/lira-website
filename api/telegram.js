@@ -192,6 +192,8 @@ async function sendTelegramMessage(chatId, text) {
   );
 
   const result = await response.json();
+  console.log("Telegram status:", response.status);
+console.log("Telegram cevap sonucu:", result);
   console.log("Telegram cevap sonucu:", result);
 }
 
