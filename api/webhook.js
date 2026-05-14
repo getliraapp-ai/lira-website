@@ -28,8 +28,34 @@ export default async function handler(req, res) {
       console.log("Mesaj geldi:", text);
       console.log("Gönderen:", from);
 
-      const reply =
-        "Merhaba 👋 Ben LIRA. Mesajını aldım. Yakında özel gün, hediye ve hatırlatma konularında sana yardımcı olacağım 💜";
+      const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "gpt-4.1-mini",
+    messages: [
+      {
+        role: "system",
+        content:
+          "Sen LIRA adlı yapay zeka destekli kişisel asistansın. Türkçe konuş. Sıcak, kısa ve yardımcı cevap ver. Kullanıcılara özel günleri hatırlatma, hediye önerme ve sürpriz planlama konularında destek ol.",
+      },
+      {
+        role: "user",
+        content: text,
+      },
+    ],
+  }),
+});
+
+const openaiData = await openaiResponse.json();
+console.log("OpenAI sonucu:", openaiData);
+
+const reply =
+  openaiData.choices?.[0]?.message?.content ||
+  "Merhaba 👋 Ben LIRA. Şu an kısa süreli yanıt veremiyorum ama mesajını aldım 💜";
 
       const whatsappResponse = await fetch(
         `https://graph.facebook.com/v25.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
