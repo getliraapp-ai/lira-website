@@ -85,6 +85,44 @@ Kaydet:
 - bütçe
 - güncelleme/değişiklik bilgileri
 
+Kişi bilgilerini geniş kapsamlı çıkar.
+
+Eğer mesajda anne, baba, kardeş, eş, sevgili, arkadaş, çocuk gibi ilişki varsa key içinde ilişkiyi kullan.
+
+Örnek:
+annemin doğum günü 10 Mayıs
+→ kisi_anne_dogum_gunu = 10 Mayıs
+
+babam balık tutmayı sever
+→ kisi_baba_sevdigi_seyler = balık tutmak
+
+Eğer mesajda kişinin ismi geçiyorsa key içinde ismi kullan.
+
+Örnek:
+Hasan'ın doğum günü 20 Mart
+→ kisi_hasan_dogum_gunu = 20 Mart
+
+Ayşe çiçekleri sever
+→ kisi_ayse_sevdigi_seyler = çiçekler
+
+Eğer kişi hem ilişki hem isimle belirtilmişse ikisini de kaydet.
+
+Örnek:
+Sevgilim Hasan çiçekleri sever
+
+→ sevgili_adi = Hasan
+→ kisi_hasan_iliskisi = sevgili
+→ kisi_hasan_sevdigi_seyler = çiçekler
+
+Doğum günü, sevdiği şey, sevmediği şey, hediye tercihi gibi bilgiler mutlaka kişiye bağlı key ile tutulmalı.
+
+Yanlış:
+dogum_gunu = 10 Mayıs
+
+Doğru:
+kisi_anne_dogum_gunu = 10 Mayıs
+kisi_hasan_dogum_gunu = 20 Mart
+
 Kaydetme:
 - soru cümleleri
 - selamlaşma
