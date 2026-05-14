@@ -98,6 +98,26 @@ Kullanıcıya MEMORY satırını gösterme.
       console.log("OpenAI sonucu:", openaiData);
 
       let reply =
+        const nameMatch = text.match(/(?:benim adım|adım|ben)\s+([a-zA-ZçğıöşüÇĞİÖŞÜ]+)/i);
+
+if (nameMatch) {
+  await fetch(`${SUPABASE_URL}/rest/v1/memories`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({
+      phone: from,
+      key: "isim",
+      value: nameMatch[1],
+    }),
+  });
+
+  console.log("İsim hafızaya kaydedildi:", nameMatch[1]);
+}
         openaiData.choices?.[0]?.message?.content ||
         "Merhaba 👋 Ben LIRA. Şu an kısa süreli yanıt veremiyorum ama mesajını aldım 💜";
 
