@@ -94,7 +94,7 @@ if (motherBirthdayMatch) {
 }
 
 const partnerMatch = text.match(
-  /sevgilimin adı\s+([a-zA-ZçğıöşüÇĞİÖŞÜ]+).*doğum günü\s+(.+)/i
+  /sevgilimin adı\s+([a-zA-ZçğıöşüÇĞİÖŞÜ]+).*doğum (?:günü|tarihi)\s+(.+)/i
 );
 
 if (partnerMatch) {
