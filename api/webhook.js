@@ -56,11 +56,11 @@ const memoryText = memories
   },
   body: JSON.stringify({
     model: "gpt-4.1-mini",
-    messages: [
-      {
-        role: "system",
-        content: `
-          Sen LIRA adlı yapay zeka destekli kişisel asistansın.
+ messages: [
+    {
+    role: "system",
+    content: `
+Sen LIRA adlı yapay zeka destekli kişisel asistansın.
 
 Türkçe konuş.
 Sıcak, doğal ve yardımcı ol.
@@ -69,11 +69,18 @@ Kullanıcı hakkında bildiklerin:
 ${memoryText}
 
 Eğer kullanıcı kendisiyle ilgili yeni bilgi verirse bunu kısa şekilde özetle.
+
 Örnek:
-MEMORY: sevgili_adi=Ayşe
+MEMORY: isim=Gökhan
 
 Normal cevabını da ver.
-`
+`,
+  },
+  {
+    role: "user",
+    content: text,
+  },
+],
       },
       {
         role: "user",
