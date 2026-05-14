@@ -18,8 +18,7 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
-      const message =
-        req.body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+      const message = req.body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
 
       if (!message) {
         return res.status(200).send("EVENT_RECEIVED");
@@ -31,94 +30,99 @@ export default async function handler(req, res) {
       console.log("Mesaj geldi:", text);
       console.log("Gönderen:", from);
 
-      // Kullanıcının hafızasını çek
-const memoryResponse = await fetch(
-  `${SUPABASE_URL}/rest/v1/memories?phone=eq.${from}`,
-  {
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
-    },
-  }
-);
+      let memoryText = "";
 
-const memories = await memoryResponse.json();
+      try {
+        const memoryResponse = await fetch(
+          `${SUPABASE_URL}/rest/v1/memories?phone=eq.${from}`,
+          {
+            headers: {
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${SUPABASE_KEY}`,
+            },
+          }
+        );
 
-const memoryText = memories
-  .map((m) => `${m.key}: ${m.value}`)
-  .join("\n");
-      
+        const memories = await memoryResponse.json();
+
+        memoryText = Array.isArray(memories)
+          ? memories.map((m) => `${m.key}: ${m.value}`).join("\n")
+          : "";
+      } catch (e) {
+        console.log("Hafıza okunamadı:", e);
+      }
+
       const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    model: "gpt-4.1-mini",
- messages: [
-    {
-    role: "system",
-    content: `
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: `
 Sen LIRA adlı yapay zeka destekli kişisel asistansın.
-
 Türkçe konuş.
-Sıcak, doğal ve yardımcı ol.
+Kısa, sıcak ve yardımcı cevap ver.
 
 Kullanıcı hakkında bildiklerin:
 ${memoryText}
 
-Eğer kullanıcı kendisiyle ilgili yeni bilgi verirse bunu kısa şekilde özetle.
-
-Örnek:
+Kullanıcı kendisiyle ilgili kalıcı bir bilgi verirse cevabının sonuna şu formatta ekle:
 MEMORY: isim=Gökhan
 
-Normal cevabını da ver.
+Örnek hafıza türleri:
+MEMORY: isim=Gökhan
+MEMORY: sevgili_adi=Ayşe
+MEMORY: hediye_butcesi=3000 TL
+MEMORY: annesinin_dogum_gunu=4 Haziran
+
+Kullanıcıya MEMORY satırını gösterme.
 `,
-  },
-  {
-    role: "user",
-    content: text,
-  },
-],
-      },
-      {
-        role: "user",
-        content: text,
-      },
-    ],
-  }),
-});
+            },
+            {
+              role: "user",
+              content: text,
+            },
+          ],
+        }),
+      });
 
-const openaiData = await openaiResponse.json();
-console.log("OpenAI sonucu:", openaiData);
+      const openaiData = await openaiResponse.json();
+      console.log("OpenAI sonucu:", openaiData);
 
-const reply =
-// Hafıza kaydetme kontrolü
-const memoryMatch = reply.match(/MEMORY:\s*(.*)/);
+      let reply =
+        openaiData.choices?.[0]?.message?.content ||
+        "Merhaba 👋 Ben LIRA. Şu an kısa süreli yanıt veremiyorum ama mesajını aldım 💜";
 
-if (memoryMatch) {
-  const memoryData = memoryMatch[1];
+      const memoryMatch = reply.match(/MEMORY:\s*(.+)/);
 
-  const [key, value] = memoryData.split("=");
+      if (memoryMatch) {
+        const memoryData = memoryMatch[1];
+        const [key, value] = memoryData.split("=");
 
-  await fetch(`${SUPABASE_URL}/rest/v1/memories`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
-      Prefer: "return=minimal",
-    },
-    body: JSON.stringify({
-      phone: from,
-      key: key?.trim(),
-      value: value?.trim(),
-    }),
-  });
-}
-  openaiData.choices?.[0]?.message?.content ||
-  "Merhaba 👋 Ben LIRA. Şu an kısa süreli yanıt veremiyorum ama mesajını aldım 💜";
+        if (key && value) {
+          await fetch(`${SUPABASE_URL}/rest/v1/memories`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${SUPABASE_KEY}`,
+              Prefer: "return=minimal",
+            },
+            body: JSON.stringify({
+              phone: from,
+              key: key.trim(),
+              value: value.trim(),
+            }),
+          });
+        }
+
+        reply = reply.replace(/MEMORY:.*$/gm, "").trim();
+      }
 
       const whatsappResponse = await fetch(
         `https://graph.facebook.com/v25.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
@@ -135,7 +139,7 @@ if (memoryMatch) {
             type: "text",
             text: {
               preview_url: false,
-              body: reply.replace(/MEMORY:.*$/gm, "").trim(),
+              body: reply,
             },
           }),
         }
