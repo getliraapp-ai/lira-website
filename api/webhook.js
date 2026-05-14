@@ -35,25 +35,28 @@ async function saveMemory(phone, key, value) {
   try {
     if (!key || !value) return;
 
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/memories`, {
-      method: "POST",
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        "Content-Type": "application/json",
-        Prefer: "return=representation",
-      },
-      body: JSON.stringify({
-        phone,
-        key,
-        value,
-      }),
-    });
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/memories?on_conflict=phone,key`,
+      {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+          Prefer: "resolution=merge-duplicates,return=representation",
+        },
+        body: JSON.stringify({
+          phone,
+          key,
+          value,
+        }),
+      }
+    );
 
     const result = await response.json();
-    console.log("Supabase kayıt sonucu:", result);
+    console.log("Supabase kayıt/güncelleme sonucu:", result);
   } catch (error) {
-    console.log("Hafıza kayıt hatası:", error);
+    console.log("Hafıza kayıt/güncelleme hatası:", error);
   }
 }
 
