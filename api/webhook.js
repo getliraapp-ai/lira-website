@@ -62,13 +62,12 @@ export default async function handler(req, res) {
 
         // WhatsApp mesaj gönder
         await fetch(
-          `https://graph.facebook.com/v25.0/1140525972473630/messages`,
+          `https://graph.facebook.com/v25.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization:
-                "EAAZC0TZBS8pysBRWGuBgkdkZAEijrh4SJxZCx9a3X0Sb1K9ialGHxVy20y6E0sAEHgZB2HOUopVZAw1bK46TIrrVi0lJsbrfDuBk9Cb6qwGVyusVcEKZCiPr5pO9kRkaDaLIjW2IRQZAnRNPDjZACMyNCR44ESChE1KT919pxkS8cUzZC0tM2j9AFiZCgVKWOTK3jneo0zxC74tdiZBMQEOOGuNh0dunqVCYqglRGSyJy9yvcXHMvTmfaQkCpVCQZBc7JmeNl9fiUpjNK6uKEO3chS7cr4wZDZD",
+              Authorization: `Bearer ${process.env.META_ACCESS_TOKEN}`,
             },
             body: JSON.stringify({
               messaging_product: "whatsapp",
