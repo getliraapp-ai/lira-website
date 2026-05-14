@@ -61,7 +61,7 @@ export default async function handler(req, res) {
 
         // WhatsApp mesaj gönder
         await fetch(
-          `https://graph.facebook.com/v25.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`,
+          `https://graph.facebook.com/v25.0/${process.env.1140525972473630}/messages`,
           {
             method: "POST",
             headers: {
