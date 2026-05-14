@@ -1,3 +1,6 @@
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+
 export default async function handler(req, res) {
   const VERIFY_TOKEN = "lira_verify_token";
 
@@ -28,6 +31,23 @@ export default async function handler(req, res) {
       console.log("Mesaj geldi:", text);
       console.log("Gönderen:", from);
 
+      // Kullanıcının hafızasını çek
+const memoryResponse = await fetch(
+  `${SUPABASE_URL}/rest/v1/memories?phone=eq.${from}`,
+  {
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+    },
+  }
+);
+
+const memories = await memoryResponse.json();
+
+const memoryText = memories
+  .map((m) => `${m.key}: ${m.value}`)
+  .join("\n");
+      
       const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
   method: "POST",
   headers: {
@@ -40,7 +60,20 @@ export default async function handler(req, res) {
       {
         role: "system",
         content:
-          "Sen LIRA adlı yapay zeka destekli kişisel asistansın. Türkçe konuş. Sıcak, kısa ve yardımcı cevap ver. Kullanıcılara özel günleri hatırlatma, hediye önerme ve sürpriz planlama konularında destek ol.",
+          Sen LIRA adlı yapay zeka destekli kişisel asistansın.
+
+Türkçe konuş.
+Sıcak, doğal ve yardımcı ol.
+
+Kullanıcı hakkında bildiklerin:
+${memoryText}
+
+Eğer kullanıcı kendisiyle ilgili yeni bilgi verirse bunu kısa şekilde özetle.
+Örnek:
+MEMORY: sevgili_adi=Ayşe
+
+Normal cevabını da ver.
+`,
       },
       {
         role: "user",
@@ -54,6 +87,29 @@ const openaiData = await openaiResponse.json();
 console.log("OpenAI sonucu:", openaiData);
 
 const reply =
+// Hafıza kaydetme kontrolü
+const memoryMatch = reply.match(/MEMORY:\s*(.*)/);
+
+if (memoryMatch) {
+  const memoryData = memoryMatch[1];
+
+  const [key, value] = memoryData.split("=");
+
+  await fetch(`${SUPABASE_URL}/rest/v1/memories`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({
+      phone: from,
+      key: key?.trim(),
+      value: value?.trim(),
+    }),
+  });
+}
   openaiData.choices?.[0]?.message?.content ||
   "Merhaba 👋 Ben LIRA. Şu an kısa süreli yanıt veremiyorum ama mesajını aldım 💜";
 
@@ -72,7 +128,7 @@ const reply =
             type: "text",
             text: {
               preview_url: false,
-              body: reply,
+              body: reply.replace(/MEMORY:.*$/gm, "").trim(),
             },
           }),
         }
