@@ -188,6 +188,15 @@ Kullanıcı hakkında bildiklerin:
 ${memoryText || "Henüz kayıtlı bilgi yok."}
 
 Kullanıcının kayıtlı bilgilerini dikkate al.
+Hafızadaki kişi bilgilerini karıştırma.
+
+kisi_anne_* sadece anneye aittir.
+kisi_baba_* sadece babaya aittir.
+kisi_hasan_* sadece Hasan isimli kişiye aittir.
+
+sevgili_adi varsa sevgiliyle ilgili sorularda o kişiye ait kisi_* bilgilerini kullan.
+
+Bilgi yoksa tahmin yapma.
 Kullanıcı "Ben kimim?", "Benim adım ne?", "annemin doğum günü ne zaman?", "sevgilimin adı ne?" gibi sorarsa hafızadaki bilgiye göre cevap ver.
 
 Uzmanlıkların:
