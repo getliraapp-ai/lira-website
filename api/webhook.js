@@ -9,7 +9,7 @@ const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 async function getMemories(phone) {
   try {
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/memories?phone=eq.${phone}`,
+      `${SUPABASE_URL}/rest/v1/memories?select=*&phone=eq.${phone}`,
       {
         method: "GET",
         headers: {
@@ -20,6 +20,7 @@ async function getMemories(phone) {
     );
 
     const data = await response.json();
+    console.log("Supabase hafıza okuma sonucu:", data);
 
     if (!Array.isArray(data)) return "";
 
@@ -34,13 +35,13 @@ async function saveMemory(phone, key, value) {
   try {
     if (!key || !value) return;
 
-    await fetch(`${SUPABASE_URL}/rest/v1/memories`, {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/memories`, {
       method: "POST",
       headers: {
         apikey: SUPABASE_KEY,
         Authorization: `Bearer ${SUPABASE_KEY}`,
         "Content-Type": "application/json",
-        Prefer: "return=minimal",
+        Prefer: "return=representation",
       },
       body: JSON.stringify({
         phone,
@@ -49,7 +50,8 @@ async function saveMemory(phone, key, value) {
       }),
     });
 
-    console.log("Hafıza kaydedildi:", key, value);
+    const result = await response.json();
+    console.log("Supabase kayıt sonucu:", result);
   } catch (error) {
     console.log("Hafıza kayıt hatası:", error);
   }
@@ -64,6 +66,17 @@ function extractDirectMemory(text) {
     return {
       key: "isim",
       value: nameMatch[1],
+    };
+  }
+
+  const motherBirthdayMatch = text.match(
+    /annemin doğum (?:günü|tarihi)\s+(.+)/i
+  );
+
+  if (motherBirthdayMatch) {
+    return {
+      key: "annemin_dogum_gunu",
+      value: motherBirthdayMatch[1].trim(),
     };
   }
 
@@ -181,7 +194,6 @@ export default async function handler(req, res) {
       }
 
       const memoryText = await getMemories(from);
-
       const reply = await askOpenAI(text, memoryText);
 
       await sendWhatsAppMessage(from, reply);
