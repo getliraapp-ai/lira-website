@@ -74,6 +74,9 @@ ${memoryText}
 Kullanıcı kendisiyle ilgili kalıcı bir bilgi verirse cevabının sonuna şu formatta ekle:
 MEMORY: isim=Gökhan
 
+Kullanıcı “ben Gökhan”, “benim adım Gökhan”, “adım Gökhan” derse mutlaka şunu ekle:
+MEMORY: isim=Gökhan
+
 Örnek hafıza türleri:
 MEMORY: isim=Gökhan
 MEMORY: sevgili_adi=Ayşe
