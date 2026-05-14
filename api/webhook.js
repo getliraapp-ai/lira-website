@@ -59,7 +59,7 @@ async function saveMemory(phone, key, value) {
 
 function extractDirectMemory(text) {
   const nameMatch = text.match(
-    /(?:benim adım|adım|ben)\s+([a-zA-ZçğıöşüÇĞİÖŞÜ]+)/i
+    /(?:benim adım|adım)\s+([a-zA-ZçğıöşüÇĞİÖŞÜ]+)/i
   );
 
   if (nameMatch) {
