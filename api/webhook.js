@@ -59,7 +59,7 @@ const memoryText = memories
     messages: [
       {
         role: "system",
-        content:
+        content: `
           Sen LIRA adlı yapay zeka destekli kişisel asistansın.
 
 Türkçe konuş.
@@ -73,7 +73,7 @@ Eğer kullanıcı kendisiyle ilgili yeni bilgi verirse bunu kısa şekilde özet
 MEMORY: sevgili_adi=Ayşe
 
 Normal cevabını da ver.
-`,
+`
       },
       {
         role: "user",
