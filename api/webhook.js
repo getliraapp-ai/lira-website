@@ -67,7 +67,7 @@ export default async function handler(req, res) {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${process.env.META_ACCESS_TOKEN}`,
+              Authorization: `Bearer ${process.env.lira_verify_token}`,
             },
             body: JSON.stringify({
               messaging_product: "whatsapp",
