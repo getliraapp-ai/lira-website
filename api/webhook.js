@@ -11,7 +11,6 @@ async function getMemories(phone) {
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/memories?select=*&phone=eq.${phone}`,
       {
-        method: "GET",
         headers: {
           apikey: SUPABASE_KEY,
           Authorization: `Bearer ${SUPABASE_KEY}`,
@@ -20,8 +19,6 @@ async function getMemories(phone) {
     );
 
     const data = await response.json();
-    console.log("Supabase hafıza okuma sonucu:", data);
-
     if (!Array.isArray(data)) return "";
 
     return data.map((m) => `${m.key}: ${m.value}`).join("\n");
@@ -54,63 +51,112 @@ async function saveMemory(phone, key, value) {
     );
 
     const result = await response.json();
-    console.log("Supabase kayıt/güncelleme sonucu:", result);
+    console.log("Supabase hafıza kayıt/güncelleme:", result);
   } catch (error) {
     console.log("Hafıza kayıt/güncelleme hatası:", error);
   }
 }
 
-function extractDirectMemory(text) {
-  const lowerText = text.toLowerCase();
+async function extractMemoryWithAI(text) {
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0,
+        messages: [
+          {
+            role: "system",
+            content: `
+Sen bir hafıza çıkarım motorusun.
 
-if (
-  lowerText.includes("ne zaman") ||
-  lowerText.includes("kim") ||
-  lowerText.includes("nedir") ||
-  lowerText.includes("?")
-) {
-  return null;
+Görevin:
+Kullanıcı mesajından kalıcı ve ileride işe yarayacak kişisel bilgileri çıkar.
+
+Sadece şu durumda hafıza çıkar:
+- Kullanıcı kendisi hakkında bilgi verirse
+- Yakınları hakkında bilgi verirse
+- Özel gün, doğum günü, yıl dönümü verirse
+- Hediye tercihi, sevdiği/sevmediği şey, bütçe, ilişki bilgisi verirse
+- Bir bilgiyi güncellemek/değiştirmek istediğini söylerse
+
+Şu durumlarda hafıza çıkarma:
+- Soru soruyorsa
+- Selam veriyorsa
+- Sohbet ediyorsa
+- "Ben kimim?", "ne zaman?", "kim?", "nedir?" gibi bilgi istiyorsa
+- Belirsiz veya geçici bilgi veriyorsa
+
+Cevabın sadece JSON olsun. Açıklama yazma.
+
+Format:
+{
+  "memories": [
+    {
+      "key": "kisa_anahtar",
+      "value": "deger"
+    }
+  ]
 }
-  const nameMatch = text.match(
-    /(?:benim adım|adım)\s+([a-zA-ZçğıöşüÇĞİÖŞÜ]+)/i
-  );
 
-  if (nameMatch) {
-    return {
-      key: "isim",
-      value: nameMatch[1],
-    };
+Eğer kaydedilecek bilgi yoksa:
+{
+  "memories": []
+}
+
+Anahtar isimleri Türkçe, küçük harfli ve alt çizgili olsun.
+
+Örnekler:
+
+Kullanıcı: "Benim adım Gökhan"
+{
+  "memories": [
+    { "key": "isim", "value": "Gökhan" }
+  ]
+}
+
+Kullanıcı: "Sevgilimin adı Ayşe, doğum günü 10 Ocak"
+{
+  "memories": [
+    { "key": "sevgili_adi", "value": "Ayşe" },
+    { "key": "sevgili_dogum_gunu", "value": "10 Ocak" }
+  ]
+}
+
+Kullanıcı: "Annem çiçekleri sever"
+{
+  "memories": [
+    { "key": "anne_sevdigi_seyler", "value": "çiçekler" }
+  ]
+}
+
+Kullanıcı: "Ben kimim?"
+{
+  "memories": []
+}
+`,
+          },
+          {
+            role: "user",
+            content: text,
+          },
+        ],
+      }),
+    });
+
+    const data = await response.json();
+    const raw = data.choices?.[0]?.message?.content || '{"memories":[]}';
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed.memories) ? parsed.memories : [];
+  } catch (error) {
+    console.log("AI hafıza çıkarım hatası:", error);
+    return [];
   }
-
-  const motherBirthdayMatch = text.match(
-  /annemin doğum (?:günü|tarihi)\s+(.+)/i
-);
-
-if (motherBirthdayMatch) {
-  return {
-    key: "annemin_dogum_gunu",
-    value: motherBirthdayMatch[1].trim(),
-  };
-}
-
-const partnerMatch = text.match(
-  /sevgilimin adı\s+([a-zA-ZçğıöşüÇĞİÖŞÜ]+).*doğum (?:günü|tarihi)\s+(.+)/i
-);
-
-if (partnerMatch) {
-  return [
-    {
-      key: "sevgili_adi",
-      value: partnerMatch[1].trim(),
-    },
-    {
-      key: "sevgili_dogum_gunu",
-      value: partnerMatch[2].trim(),
-    },
-  ];
-}
-
-return null;
 }
 
 async function askOpenAI(text, memoryText) {
@@ -135,14 +181,14 @@ WhatsApp mesajı gibi cevap ver.
 Kullanıcı hakkında bildiklerin:
 ${memoryText || "Henüz kayıtlı bilgi yok."}
 
-Görevin:
+Kullanıcının kayıtlı bilgilerini dikkate al.
+Kullanıcı "Ben kimim?", "Benim adım ne?", "annemin doğum günü ne zaman?", "sevgilimin adı ne?" gibi sorarsa hafızadaki bilgiye göre cevap ver.
+
+LIRA'nın uzmanlıkları:
 - Özel gün hatırlatma
 - Hediye önerisi
 - Sürpriz planlama
 - Günlük kişisel asistan desteği
-
-Kullanıcı hakkında bildiğin bilgi varsa cevabında bunu kullan.
-Kullanıcı "Ben kimim?", "Benim adım ne?" gibi sorarsa hafızadaki ismi söyle.
 `,
         },
         {
@@ -154,7 +200,7 @@ Kullanıcı "Ben kimim?", "Benim adım ne?" gibi sorarsa hafızadaki ismi söyle
   });
 
   const data = await response.json();
-  console.log("OpenAI sonucu:", data);
+  console.log("OpenAI cevap sonucu:", data);
 
   return (
     data.choices?.[0]?.message?.content ||
@@ -186,7 +232,6 @@ async function sendWhatsAppMessage(to, body) {
 
   const result = await response.json();
   console.log("WhatsApp cevap sonucu:", result);
-
   return result;
 }
 
@@ -217,17 +262,11 @@ export default async function handler(req, res) {
       console.log("Mesaj geldi:", text);
       console.log("Gönderen:", from);
 
-      const directMemory = extractDirectMemory(text);
+      const memories = await extractMemoryWithAI(text);
 
-    if (directMemory) {
-  if (Array.isArray(directMemory)) {
-    for (const memory of directMemory) {
-      await saveMemory(from, memory.key, memory.value);
-    }
-  } else {
-    await saveMemory(from, directMemory.key, directMemory.value);
-  }
-}
+      for (const memory of memories) {
+        await saveMemory(from, memory.key, memory.value);
+      }
 
       const memoryText = await getMemories(from);
       const reply = await askOpenAI(text, memoryText);
