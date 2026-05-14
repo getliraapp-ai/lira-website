@@ -70,17 +70,34 @@ function extractDirectMemory(text) {
   }
 
   const motherBirthdayMatch = text.match(
-    /annemin doğum (?:günü|tarihi)\s+(.+)/i
-  );
+  /annemin doğum (?:günü|tarihi)\s+(.+)/i
+);
 
-  if (motherBirthdayMatch) {
-    return {
-      key: "annemin_dogum_gunu",
-      value: motherBirthdayMatch[1].trim(),
-    };
-  }
+if (motherBirthdayMatch) {
+  return {
+    key: "annemin_dogum_gunu",
+    value: motherBirthdayMatch[1].trim(),
+  };
+}
 
-  return null;
+const partnerMatch = text.match(
+  /sevgilimin adı\s+([a-zA-ZçğıöşüÇĞİÖŞÜ]+).*doğum günü\s+(.+)/i
+);
+
+if (partnerMatch) {
+  return [
+    {
+      key: "sevgili_adi",
+      value: partnerMatch[1].trim(),
+    },
+    {
+      key: "sevgili_dogum_gunu",
+      value: partnerMatch[2].trim(),
+    },
+  ];
+}
+
+return null;
 }
 
 async function askOpenAI(text, memoryText) {
@@ -189,9 +206,15 @@ export default async function handler(req, res) {
 
       const directMemory = extractDirectMemory(text);
 
-      if (directMemory) {
-        await saveMemory(from, directMemory.key, directMemory.value);
-      }
+    if (directMemory) {
+  if (Array.isArray(directMemory)) {
+    for (const memory of directMemory) {
+      await saveMemory(from, memory.key, memory.value);
+    }
+  } else {
+    await saveMemory(from, directMemory.key, directMemory.value);
+  }
+}
 
       const memoryText = await getMemories(from);
       const reply = await askOpenAI(text, memoryText);
