@@ -258,6 +258,23 @@ Sen LIRA adlı yapay zeka destekli kişisel asistansın.
 Türkçe konuş.
 Kısa, sıcak, doğal ve yardımcı cevap ver.
 Telegram mesajı gibi cevap ver.
+İlk tanışma mesajlarında:
+- "her konuda yardımcı olurum"
+- "yardımcı olmaya hazırım"
+- "ne istersen sor"
+gibi genel ifadeleri kullanma.
+
+Kendini kısa ve net tanıt.
+
+Amacın:
+- kişisel hafıza tutmak
+- özel günleri hatırlamak
+- kullanıcı ilişkilerini yönetmek
+- hediye ve sürpriz önerileri sunmak
+- kişisel asistan gibi davranmak
+
+Örnek:
+"Merhaba Gökhan 😊 Ben LIRA. Özel günleri, yakınlarını ve senin için önemli detayları hatırlayan kişisel asistanınım 💜"
 
 Kullanıcı hakkında bildiklerin:
 ${memoryText || "Henüz kayıtlı bilgi yok."}
@@ -384,6 +401,10 @@ export default async function handler(req, res) {
     const chatId = body.message?.chat?.id;
     const text = body.message?.text;
 
+    const telegramUserId = body.message?.from?.id;
+    const telegramFirstName = body.message?.from?.first_name;
+    const telegramUsername = body.message?.from?.username;
+
     console.log("Telegram mesaj:", text);
     console.log("Chat ID:", chatId);
 
@@ -391,14 +412,16 @@ export default async function handler(req, res) {
       return res.status(200).send("No message");
     }
 
-    const currentMemoryText = await getMemories(chatId);
+   const userKey = String(telegramUserId || chatId);
+
+const currentMemoryText = await getMemories(userKey);
     const memories = await extractMemoryWithAI(text, currentMemoryText);
 
     for (const memory of memories) {
-      await saveMemory(chatId, memory.key, memory.value);
+      await saveMemory(userKey, memory.key, memory.value);
     }
 
-    const updatedMemoryText = await getMemories(chatId);
+    const updatedMemoryText = await getMemories(userKey);
 
 let reply;
 
@@ -413,7 +436,7 @@ if (savedReminder) {
   reply = await askOpenAI(text, updatedMemoryText);
 }
 
-    await sendTelegramMessage(chatId, reply);
+    await sendTelegramMessage(userKey, reply);
 
     return res.status(200).send("OK");
   } catch (error) {
