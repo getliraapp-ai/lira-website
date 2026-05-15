@@ -241,20 +241,13 @@ export default async function handler(req, res) {
 
       const diffDays = daysBetween(today, targetDate);
 
-      const reminderKey = getReminderKeyForEvent(memory.key);
+      const reminderKeys = getReminderKeysForEvent(memory.key);
 
-      const specificReminder = memories.find(
-        (m) => m.phone === memory.phone && m.key === reminderKey
-      );
+    const reminderMemory = memories.find(
+  (m) => m.phone === memory.phone && reminderKeys.includes(m.key)
+);
 
-      const generalReminder = memories.find(
-        (m) => m.phone === memory.phone && m.key === "hatirlatma_gun_sayisi"
-      );
-
-      const reminderDays = parseInt(
-        specificReminder?.value || generalReminder?.value || "3",
-        10
-      );
+      const reminderDays = parseInt(reminderMemory?.value || "3", 10);
 
       const isToday = diffDays === 0;
       const isReminderDay = diffDays === reminderDays;
