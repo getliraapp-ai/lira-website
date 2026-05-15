@@ -109,13 +109,21 @@ function getEventLabel(key) {
   return "özel gün";
 }
 
-function getReminderKeyForEvent(key) {
-  if (key.startsWith("kisi_")) {
-    const personSlug = getPersonSlug(key);
-    return `kisi_${personSlug}_hatirlatma_gun_sayisi`;
+function getReminderKeysForEvent(key) {
+  if (!key.startsWith("kisi_")) {
+    return [
+      `${key}_hatirlatma_gun_sayisi`,
+      "hatirlatma_gun_sayisi",
+    ];
   }
 
-  return "hatirlatma_gun_sayisi";
+  const personSlug = getPersonSlug(key);
+
+  return [
+    `${key}_hatirlatma_gun_sayisi`,
+    `kisi_${personSlug}_hatirlatma_gun_sayisi`,
+    "hatirlatma_gun_sayisi",
+  ];
 }
 
 async function sendTelegramMessage(chatId, text) {
