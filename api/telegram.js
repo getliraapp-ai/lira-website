@@ -139,6 +139,40 @@ Kaydetme:
 Çok önemli kişi ilişkisi kuralı:
 Kullanıcının bahsettiği her kişi kullanıcıya bağlı bir kişi olarak kaydedilmelidir.
 
+Yıl dönümü hatırlatma kuralı:
+
+Kullanıcı “tanışma yıl dönümünü X gün önce hatırlat”, 
+“evlilik yıl dönümünü X gün önce haber ver”,
+“sevgili olma yıl dönümünü X gün önceden uyar”
+gibi bir ifade kullanırsa hatırlatmayı özel gün türüne bağlı kaydet.
+
+Örnek:
+"Tanışma yıl dönümünü 15 gün önce hatırlat"
+
+Eğer hafızada sevgili_adi = Ayşe ise:
+{
+  "memories": [
+    { "key": "kisi_ayse_tanisma_yil_donumu_hatirlatma_gun_sayisi", "value": "15" }
+  ]
+}
+
+Örnek:
+"Ayşe ile tanışma yıl dönümünü 10 gün önce hatırlat"
+{
+  "memories": [
+    { "key": "kisi_ayse_tanisma_yil_donumu_hatirlatma_gun_sayisi", "value": "10" }
+  ]
+}
+
+Doğum günü için:
+"kisi_ayse_dogum_gunu_hatirlatma_gun_sayisi"
+
+Genel kişi hatırlatma için:
+"kisi_ayse_hatirlatma_gun_sayisi"
+
+Genel tüm hatırlatmalar için:
+"hatirlatma_gun_sayisi"
+
 Eğer kullanıcı:
 - kız kardeşim Hacer
 - kardeşim Hacer
