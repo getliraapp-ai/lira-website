@@ -52,11 +52,11 @@ async function saveMemory(chatId, key, value) {
     const result = await response.json();
     console.log("Hafıza kayıt/güncelleme:", result);
   } catch (error) {
-    console.log("Hafıza kayıt hatası:", error);
+    console.log("Hafıza kayıt/güncelleme hatası:", error);
   }
 }
 
-async function extractMemoryWithAI(text) {
+async function extractMemoryWithAI(text, memoryText) {
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -71,25 +71,40 @@ async function extractMemoryWithAI(text) {
           {
             role: "system",
             content: `
-Sen bir hafıza çıkarım motorusun.
+Sen LIRA için çalışan bir hafıza çıkarım motorusun.
 
+Kullanıcının mevcut hafızası:
+${memoryText || "Henüz kayıtlı bilgi yok."}
+
+Görevin:
 Kullanıcı mesajından kalıcı ve ileride işe yarayacak kişisel bilgileri çıkar.
 
 Kaydet:
-- isim
-- sevgili/eş bilgisi
-- aile bireyleri
+- kullanıcının adı
+- yakınları ve tanıdıkları
+- ilişki bilgileri
 - doğum günü / özel gün
-- sevdiği/sevmediği şeyler
+- sevdiği şeyler
+- sevmediği şeyler
+- hobiler
 - hediye tercihleri
 - bütçe
-- güncelleme/değişiklik bilgileri
-Çok önemli ilişki kuralı:
+- hatırlatma tercihi
+- güncelleme / değişiklik bilgileri
 
+Kaydetme:
+- soru cümleleri
+- selamlaşma
+- geçici sohbet
+- "ben kimim", "ne zaman", "kim", "nedir" gibi bilgi isteme mesajları
+- belirsiz bilgiler
+
+Çok önemli kişi ilişkisi kuralı:
 Kullanıcının bahsettiği her kişi kullanıcıya bağlı bir kişi olarak kaydedilmelidir.
 
 Eğer kullanıcı:
 - kız kardeşim Hacer
+- kardeşim Hacer
 - oğlum Abdülkadir
 - arkadaşım Ali
 - amcam Mehmet
@@ -97,74 +112,95 @@ Eğer kullanıcı:
 - eşim Ayşe
 - sevgilim Hasan
 
-gibi bir ifade kullanırsa bu kişi kullanıcının yakınıdır.
+gibi bir ifade kullanırsa bu kişi kullanıcının yakını/tanıdığıdır.
 
-Bu durumda hem ilişkiyi hem kişiye ait bilgiyi kaydet.
+Kişi hem ilişki hem isimle belirtilmişse ikisini de kaydet.
 
 Örnek:
 Kız kardeşim Hacer onun doğum günü 1 Ocak
 
-Doğru kayıt:
-{ "key": "kisi_hacer_iliskisi", "value": "kız kardeş" }
-{ "key": "kisi_hacer_dogum_gunu", "value": "1 Ocak" }
+Doğru:
+{
+  "memories": [
+    { "key": "kisi_hacer_iliskisi", "value": "kız kardeş" },
+    { "key": "kisi_hacer_dogum_gunu", "value": "1 Ocak" }
+  ]
+}
 
 Örnek:
 Oğlumun adı Abdülkadir onun doğum tarihi 28 Mart
 
-Doğru kayıt:
-{ "key": "kisi_abdulkadir_iliskisi", "value": "oğul" }
-{ "key": "kisi_abdulkadir_dogum_gunu", "value": "28 Mart" }
-
-Yanlış:
-{ "key": "dogum_gunu", "value": "1 Ocak" }
-{ "key": "abdulkadir_dogum_gunu", "value": "28 Mart" }
-
-Kişi bilgileri daima kullanıcıya bağlı yakın/tanıdık olarak düşünülmelidir.
-Kişi bilgilerini geniş kapsamlı çıkar.
-
-Eğer mesajda anne, baba, kardeş, eş, sevgili, arkadaş, çocuk gibi ilişki varsa key içinde ilişkiyi kullan.
+Doğru:
+{
+  "memories": [
+    { "key": "kisi_abdulkadir_iliskisi", "value": "oğul" },
+    { "key": "kisi_abdulkadir_dogum_gunu", "value": "28 Mart" }
+  ]
+}
 
 Örnek:
-annemin doğum günü 10 Mayıs
-→ kisi_anne_dogum_gunu = 10 Mayıs
-
-babam balık tutmayı sever
-→ kisi_baba_sevdigi_seyler = balık tutmak
-
-Eğer mesajda kişinin ismi geçiyorsa key içinde ismi kullan.
-
-Örnek:
-Hasan'ın doğum günü 20 Mart
-→ kisi_hasan_dogum_gunu = 20 Mart
-
-Ayşe çiçekleri sever
-→ kisi_ayse_sevdigi_seyler = çiçekler
-
-Eğer kişi hem ilişki hem isimle belirtilmişse ikisini de kaydet.
-
-Örnek:
-Sevgilim Hasan çiçekleri sever
-
-→ sevgili_adi = Hasan
-→ kisi_hasan_iliskisi = sevgili
-→ kisi_hasan_sevdigi_seyler = çiçekler
-
-Doğum günü, sevdiği şey, sevmediği şey, hediye tercihi gibi bilgiler mutlaka kişiye bağlı key ile tutulmalı.
-
-Yanlış:
-dogum_gunu = 10 Mayıs
+Sevgilim Hasan çiçekleri çok sever
 
 Doğru:
-kisi_anne_dogum_gunu = 10 Mayıs
-kisi_hasan_dogum_gunu = 20 Mart
+{
+  "memories": [
+    { "key": "sevgili_adi", "value": "Hasan" },
+    { "key": "kisi_hasan_iliskisi", "value": "sevgili" },
+    { "key": "kisi_hasan_sevdigi_seyler", "value": "çiçekler" }
+  ]
+}
 
-Kaydetme:
-- soru cümleleri
-- selamlaşma
-- geçici sohbet
-- "ben kimim", "ne zaman", "kim", "nedir" gibi bilgi isteme mesajları
+Doğum günü ve özel gün kuralı:
+Doğum günü veya özel gün bilgisi varsa mutlaka kime ait olduğunu key içinde belirt.
 
-Sadece JSON döndür.
+Yanlış:
+{ "key": "dogum_gunu", "value": "10 Mayıs" }
+
+Doğru:
+{ "key": "kisi_anne_dogum_gunu", "value": "10 Mayıs" }
+{ "key": "kisi_hasan_dogum_gunu", "value": "20 Mart" }
+{ "key": "kullanici_dogum_gunu", "value": "1 Ocak" }
+
+Hatırlatma kuralı:
+Kullanıcı “X gün önce haber ver”, “X gün kala hatırlat”, “X gün önceden uyar”, “X gün öncesinden bildir” derse bunu hafızaya kaydet.
+
+Yeni mesajdaki kişi ilişkisini mevcut hafızaya göre eşleştir.
+Örneğin hafızada:
+kisi_hacer_iliskisi = kız kardeş
+kisi_hacer_dogum_gunu = 20 Mayıs
+
+Kullanıcı:
+"Kardeşimin doğum gününü 5 gün önceden haber ver"
+
+Doğru:
+{
+  "memories": [
+    { "key": "kisi_hacer_hatirlatma_gun_sayisi", "value": "5" }
+  ]
+}
+
+Eğer kişi belli değilse genel ayar olarak kaydet.
+
+Örnek:
+"Doğum günlerini 3 gün önce hatırlat"
+
+Doğru:
+{
+  "memories": [
+    { "key": "hatirlatma_gun_sayisi", "value": "3" }
+  ]
+}
+
+Hatırlatma değerinde sadece sayı kullan.
+
+Anahtar kuralları:
+- key küçük harfli olsun
+- Türkçe karakter kullanma
+- boşluk yerine alt çizgi kullan
+- kişi isimlerinde Türkçe karakterleri sadeleştir
+  Örnek: Abdülkadir → abdulkadir, Ayşe → ayse, Hacer → hacer
+
+Cevabın sadece JSON olsun. Açıklama yazma.
 
 Format:
 {
@@ -177,8 +213,6 @@ Kaydedilecek bilgi yoksa:
 {
   "memories": []
 }
-
-Anahtarlar küçük harfli ve alt çizgili olsun.
 `,
           },
           {
@@ -192,7 +226,13 @@ Anahtarlar küçük harfli ve alt çizgili olsun.
     const data = await response.json();
     const raw = data.choices?.[0]?.message?.content || '{"memories":[]}';
 
-    const parsed = JSON.parse(raw);
+    const cleaned = raw
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    const parsed = JSON.parse(cleaned);
+
     return Array.isArray(parsed.memories) ? parsed.memories : [];
   } catch (error) {
     console.log("AI hafıza çıkarım hatası:", error);
@@ -218,30 +258,32 @@ Sen LIRA adlı yapay zeka destekli kişisel asistansın.
 Türkçe konuş.
 Kısa, sıcak, doğal ve yardımcı cevap ver.
 Telegram mesajı gibi cevap ver.
-Kullanıcının yakınlarını ve tanıdıklarını hafızadan ilişkiyle birlikte cevapla.
 
-Örnek:
-kisi_hacer_iliskisi = kız kardeş
-kisi_hacer_dogum_gunu = 1 Ocak
-
-Kullanıcı "Benim hakkımda ne biliyorsun?" derse:
-"Hacer kız kardeşin ve doğum günü 1 Ocak" şeklinde söyle.
-
-Kişileri kullanıcıdan bağımsız anlatma. Her kişi kullanıcının yakını/tanıdığı olarak bağlamlandırılmalı.
 Kullanıcı hakkında bildiklerin:
 ${memoryText || "Henüz kayıtlı bilgi yok."}
 
 Kullanıcının kayıtlı bilgilerini dikkate al.
-Hafızadaki kişi bilgilerini karıştırma.
 
-kisi_anne_* sadece anneye aittir.
-kisi_baba_* sadece babaya aittir.
+Hafızadaki kişi bilgilerini karıştırma.
+kisi_anne_* sadece kullanıcının annesine aittir.
+kisi_baba_* sadece kullanıcının babasına aittir.
+kisi_hacer_* sadece Hacer isimli kişiye aittir.
 kisi_hasan_* sadece Hasan isimli kişiye aittir.
+
+Kişileri kullanıcıdan bağımsız anlatma.
+Örnek:
+kisi_hacer_iliskisi = kız kardeş
+kisi_hacer_dogum_gunu = 20 Mayıs
+
+Kullanıcı "Benim hakkımda ne biliyorsun?" derse:
+"Hacer kız kardeşin ve doğum günü 20 Mayıs" şeklinde söyle.
 
 sevgili_adi varsa sevgiliyle ilgili sorularda o kişiye ait kisi_* bilgilerini kullan.
 
 Bilgi yoksa tahmin yapma.
-Kullanıcı "Ben kimim?", "Benim adım ne?", "annemin doğum günü ne zaman?", "sevgilimin adı ne?" gibi sorarsa hafızadaki bilgiye göre cevap ver.
+Var olmayan bilgiyi uydurma.
+
+Kullanıcı "Ben kimim?", "Benim adım ne?", "annemin doğum günü ne zaman?", "sevgilimin adı ne?", "kim ne sever?" gibi sorarsa hafızadaki bilgiye göre cevap ver.
 
 Uzmanlıkların:
 - özel gün hatırlatma
@@ -283,8 +325,6 @@ async function sendTelegramMessage(chatId, text) {
   );
 
   const result = await response.json();
-  console.log("Telegram status:", response.status);
-console.log("Telegram cevap sonucu:", result);
   console.log("Telegram cevap sonucu:", result);
 }
 
@@ -306,14 +346,15 @@ export default async function handler(req, res) {
       return res.status(200).send("No message");
     }
 
-    const memories = await extractMemoryWithAI(text);
+    const currentMemoryText = await getMemories(chatId);
+    const memories = await extractMemoryWithAI(text, currentMemoryText);
 
     for (const memory of memories) {
       await saveMemory(chatId, memory.key, memory.value);
     }
 
-    const memoryText = await getMemories(chatId);
-    const reply = await askOpenAI(text, memoryText);
+    const updatedMemoryText = await getMemories(chatId);
+    const reply = await askOpenAI(text, updatedMemoryText);
 
     await sendTelegramMessage(chatId, reply);
 
