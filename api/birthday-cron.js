@@ -2,7 +2,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
-function parseBirthday(dateText) {
+function parseTurkishDate(dateText) {
   try {
     const months = {
       ocak: 0,
@@ -25,20 +25,29 @@ function parseBirthday(dateText) {
       aralık: 11,
     };
 
-    const parts = String(dateText).toLowerCase().trim().split(/\s+/);
+    const clean = String(dateText)
+      .toLowerCase()
+      .trim()
+      .replace(",", "")
+      .replace(".", "");
+
+    const parts = clean.split(/\s+/);
+
     const day = parseInt(parts[0], 10);
     const month = months[parts[1]];
 
     if (isNaN(day) || month === undefined) return null;
 
     const now = new Date();
-    let birthday = new Date(now.getFullYear(), month, day);
+    let targetDate = new Date(now.getFullYear(), month, day);
 
-    if (birthday < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
-      birthday = new Date(now.getFullYear() + 1, month, day);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (targetDate < today) {
+      targetDate = new Date(now.getFullYear() + 1, month, day);
     }
 
-    return birthday;
+    return targetDate;
   } catch {
     return null;
   }
@@ -52,19 +61,61 @@ function daysBetween(today, targetDate) {
     targetDate.getDate()
   );
 
-  const diff = target.getTime() - start.getTime();
-  return Math.round(diff / (1000 * 60 * 60 * 24));
+  return Math.round((target.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function getPersonFromBirthdayKey(key) {
-  return key.replace("kisi_", "").replace("_dogum_gunu", "");
+function isSpecialDateKey(key) {
+  return (
+    key.endsWith("_dogum_gunu") ||
+    key.includes("_yil_donumu") ||
+    key.includes("_ozel_gun") ||
+    key.includes("_tarih")
+  );
 }
 
-function formatPersonName(slug) {
+function getPersonSlug(key) {
+  if (!key.startsWith("kisi_")) return "kullanici";
+
+  return key
+    .replace("kisi_", "")
+    .replace("_dogum_gunu", "")
+    .replace("_yil_donumu", "")
+    .replace("_tanisma_yil_donumu", "")
+    .replace("_evlilik_yil_donumu", "")
+    .replace("_sevgili_olma_yil_donumu", "")
+    .replace("_ozel_gun", "")
+    .replace("_tarih", "");
+}
+
+function formatName(slug) {
+  if (!slug || slug === "kullanici") return "Senin";
+
   return slug
     .split("_")
-    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function getEventLabel(key) {
+  if (key.endsWith("_dogum_gunu")) return "doğum günü";
+
+  if (key.includes("tanisma_yil_donumu")) return "tanışma yıl dönümü";
+  if (key.includes("evlilik_yil_donumu")) return "evlilik yıl dönümü";
+  if (key.includes("sevgili_olma_yil_donumu")) return "sevgili olma yıl dönümü";
+  if (key.includes("_yil_donumu")) return "yıl dönümü";
+  if (key.includes("_ozel_gun")) return "özel gün";
+  if (key.includes("_tarih")) return "özel tarih";
+
+  return "özel gün";
+}
+
+function getReminderKeyForEvent(key) {
+  if (key.startsWith("kisi_")) {
+    const personSlug = getPersonSlug(key);
+    return `kisi_${personSlug}_hatirlatma_gun_sayisi`;
+  }
+
+  return "hatirlatma_gun_sayisi";
 }
 
 async function sendTelegramMessage(chatId, text) {
@@ -86,9 +137,9 @@ async function sendTelegramMessage(chatId, text) {
   console.log("Telegram gönderim sonucu:", result);
 }
 
-async function wasAlreadySent(phone, memoryKey, reminderDays, year) {
+async function wasAlreadySent(phone, memoryKey, reminderType, year) {
   const response = await fetch(
-    `${SUPABASE_URL}/rest/v1/birthday_notifications?select=*&phone=eq.${phone}&memory_key=eq.${memoryKey}&reminder_days=eq.${reminderDays}&reminder_year=eq.${year}`,
+    `${SUPABASE_URL}/rest/v1/birthday_notifications?select=*&phone=eq.${phone}&memory_key=eq.${memoryKey}&reminder_days=eq.${reminderType}&reminder_year=eq.${year}`,
     {
       headers: {
         apikey: SUPABASE_KEY,
@@ -101,7 +152,7 @@ async function wasAlreadySent(phone, memoryKey, reminderDays, year) {
   return Array.isArray(data) && data.length > 0;
 }
 
-async function markAsSent(phone, memoryKey, birthdayValue, reminderDays, year) {
+async function markAsSent(phone, memoryKey, dateValue, reminderType, year) {
   await fetch(`${SUPABASE_URL}/rest/v1/birthday_notifications`, {
     method: "POST",
     headers: {
@@ -113,16 +164,50 @@ async function markAsSent(phone, memoryKey, birthdayValue, reminderDays, year) {
     body: JSON.stringify({
       phone,
       memory_key: memoryKey,
-      birthday_value: birthdayValue,
-      reminder_days: reminderDays,
+      birthday_value: dateValue,
+      reminder_days: reminderType,
       reminder_year: year,
     }),
   });
 }
 
+function buildMessage({ personName, eventLabel, dateValue, diffDays, reminderDays }) {
+  if (diffDays === 0) {
+    if (eventLabel === "doğum günü") {
+      return (
+        `🎉 Bugün özel bir gün!\n\n` +
+        `Bugün ${personName} için doğum günü 💜\n\n` +
+        `Küçük bir mesaj, arama ya da sürpriz çok güzel olabilir.`
+      );
+    }
+
+    return (
+      `💞 Bugün özel bir gün!\n\n` +
+      `Bugün ${personName} için ${eventLabel} 💜\n\n` +
+      `Küçük bir mesaj ya da sürpriz güzel olabilir ✨`
+    );
+  }
+
+  if (eventLabel === "doğum günü") {
+    return (
+      `🎂 Hatırlatma\n\n` +
+      `${personName} için doğum gününe ${reminderDays} gün kaldı.\n` +
+      `Tarih: ${dateValue}\n\n` +
+      `İstersen hediye veya sürpriz planlayabiliriz 💜`
+    );
+  }
+
+  return (
+    `💞 Yaklaşan özel gün\n\n` +
+    `${personName} için ${eventLabel} tarihine ${reminderDays} gün kaldı.\n` +
+    `Tarih: ${dateValue}\n\n` +
+    `İstersen buna özel bir plan hazırlayabiliriz ✨`
+  );
+}
+
 export default async function handler(req, res) {
   try {
-    console.log("Birthday cron çalıştı");
+    console.log("Özel gün cron çalıştı");
 
     const response = await fetch(`${SUPABASE_URL}/rest/v1/memories?select=*`, {
       headers: {
@@ -141,18 +226,17 @@ export default async function handler(req, res) {
     const today = new Date();
 
     for (const memory of memories) {
-      if (!memory.key.endsWith("_dogum_gunu")) continue;
+      if (!isSpecialDateKey(memory.key)) continue;
 
-      const birthday = parseBirthday(memory.value);
-      if (!birthday) continue;
+      const targetDate = parseTurkishDate(memory.value);
+      if (!targetDate) continue;
 
-      const diffDays = daysBetween(today, birthday);
-      const personSlug = getPersonFromBirthdayKey(memory.key);
+      const diffDays = daysBetween(today, targetDate);
 
-      const personReminder = memories.find(
-        (m) =>
-          m.phone === memory.phone &&
-          m.key === `kisi_${personSlug}_hatirlatma_gun_sayisi`
+      const reminderKey = getReminderKeyForEvent(memory.key);
+
+      const specificReminder = memories.find(
+        (m) => m.phone === memory.phone && m.key === reminderKey
       );
 
       const generalReminder = memories.find(
@@ -160,60 +244,57 @@ export default async function handler(req, res) {
       );
 
       const reminderDays = parseInt(
-        personReminder?.value || generalReminder?.value || "3",
+        specificReminder?.value || generalReminder?.value || "3",
         10
       );
 
-     const isBirthdayToday = diffDays === 0;
-const isReminderDay = diffDays === reminderDays;
+      const isToday = diffDays === 0;
+      const isReminderDay = diffDays === reminderDays;
 
-if (!isBirthdayToday && !isReminderDay) continue;
+      if (!isToday && !isReminderDay) continue;
 
-     const notificationType = isBirthdayToday ? 0 : reminderDays;
+      const eventLabel = getEventLabel(memory.key);
+      const personSlug = getPersonSlug(memory.key);
+      const personName = formatName(personSlug);
 
-const alreadySent = await wasAlreadySent(
-  memory.phone,
-  memory.key,
-  notificationType,
-  birthday.getFullYear()
-);
+      const reminderType = isToday ? 0 : reminderDays;
+
+      const alreadySent = await wasAlreadySent(
+        memory.phone,
+        memory.key,
+        reminderType,
+        targetDate.getFullYear()
+      );
 
       if (alreadySent) {
         console.log("Daha önce gönderilmiş:", memory.key);
         continue;
       }
 
-      const personName = formatPersonName(personSlug);
+      const message = buildMessage({
+        personName,
+        eventLabel,
+        dateValue: memory.value,
+        diffDays,
+        reminderDays,
+      });
 
-      let message;
-
-if (isBirthdayToday) {
-  message =
-    `🎉 Bugün özel bir gün!\n\n` +
-    `Bugün ${personName} için doğum günü 💜\n\n` +
-    `Küçük bir mesaj, arama ya da sürpriz çok güzel olabilir.`;
-} else {
-  message =
-    `🎂 Hatırlatma\n\n` +
-    `${personName} için doğum gününe ${reminderDays} gün kaldı.\n` +
-    `Doğum günü: ${memory.value}\n\n` +
-    `İstersen hediye veya sürpriz planı hazırlayabiliriz 💜`;
-}
+      console.log("Mesaj gönderiliyor:", message);
 
       await sendTelegramMessage(memory.phone, message);
 
       await markAsSent(
-  memory.phone,
-  memory.key,
-  memory.value,
-  notificationType,
-  birthday.getFullYear()
-);
+        memory.phone,
+        memory.key,
+        memory.value,
+        reminderType,
+        targetDate.getFullYear()
+      );
     }
 
     return res.status(200).send("OK");
   } catch (error) {
-    console.log("Birthday cron hata:", error);
+    console.log("Özel gün cron hata:", error);
     return res.status(200).send("ERROR");
   }
 }
