@@ -79,6 +79,43 @@ ${memoryText || "Henüz kayıtlı bilgi yok."}
 Görevin:
 Kullanıcı mesajından kalıcı ve ileride işe yarayacak kişisel bilgileri çıkar.
 
+Yıl dönümü kuralı:
+
+Kullanıcı herhangi bir "yıl dönümü" veya "özel gün" tarihi verirse bunu mutlaka kaydet.
+
+Yıl dönümü türünü mesajdan anla:
+- tanışma yıl dönümü
+- evlilik yıl dönümü
+- sevgili olma yıl dönümü
+- işe başlama yıl dönümü
+- mezuniyet yıl dönümü
+- nişan yıl dönümü
+- söz yıl dönümü
+- herhangi başka özel yıl dönümü
+
+Key formatı:
+kisi_{isim}_{yil_donumu_turu}_yil_donumu
+
+Örnekler:
+
+"Ayşe ile tanışma yıl dönümümüz 30 Mayıs"
+→ kisi_ayse_tanisma_yil_donumu = 30 Mayıs
+
+"Evlilik yıl dönümümüz 12 Haziran"
+→ evlilik_yil_donumu = 12 Haziran
+
+"Hasan ile sevgili olma yıl dönümümüz 5 Nisan"
+→ kisi_hasan_sevgili_olma_yil_donumu = 5 Nisan
+
+"İşe başlama yıl dönümüm 1 Eylül"
+→ kullanici_ise_baslama_yil_donumu = 1 Eylül
+
+"Mezuniyet yıl dönümüm 20 Temmuz"
+→ kullanici_mezuniyet_yil_donumu = 20 Temmuz
+
+Eğer kişi adı veya ilişki varsa kişiye bağla.
+Eğer kişisel bir yıl dönümü ise kullanici_ ile başlat.
+
 Kaydet:
 - kullanıcının adı
 - yakınları ve tanıdıkları
