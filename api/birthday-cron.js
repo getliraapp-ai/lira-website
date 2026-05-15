@@ -164,14 +164,19 @@ export default async function handler(req, res) {
         10
       );
 
-      if (diffDays !== reminderDays) continue;
+     const isBirthdayToday = diffDays === 0;
+const isReminderDay = diffDays === reminderDays;
 
-      const alreadySent = await wasAlreadySent(
-        memory.phone,
-        memory.key,
-        reminderDays,
-        birthday.getFullYear()
-      );
+if (!isBirthdayToday && !isReminderDay) continue;
+
+     const notificationType = isBirthdayToday ? 0 : reminderDays;
+
+const alreadySent = await wasAlreadySent(
+  memory.phone,
+  memory.key,
+  notificationType,
+  birthday.getFullYear()
+);
 
       if (alreadySent) {
         console.log("Daha önce gönderilmiş:", memory.key);
@@ -180,21 +185,30 @@ export default async function handler(req, res) {
 
       const personName = formatPersonName(personSlug);
 
-      const message =
-        `🎂 Hatırlatma\n\n` +
-        `${personName} için doğum gününe ${reminderDays} gün kaldı.\n` +
-        `Doğum günü: ${memory.value}\n\n` +
-        `İstersen hediye veya sürpriz planı hazırlayabiliriz 💜`;
+      let message;
+
+if (isBirthdayToday) {
+  message =
+    `🎉 Bugün özel bir gün!\n\n` +
+    `Bugün ${personName} için doğum günü 💜\n\n` +
+    `Küçük bir mesaj, arama ya da sürpriz çok güzel olabilir.`;
+} else {
+  message =
+    `🎂 Hatırlatma\n\n` +
+    `${personName} için doğum gününe ${reminderDays} gün kaldı.\n` +
+    `Doğum günü: ${memory.value}\n\n` +
+    `İstersen hediye veya sürpriz planı hazırlayabiliriz 💜`;
+}
 
       await sendTelegramMessage(memory.phone, message);
 
       await markAsSent(
-        memory.phone,
-        memory.key,
-        memory.value,
-        reminderDays,
-        birthday.getFullYear()
-      );
+  memory.phone,
+  memory.key,
+  memory.value,
+  notificationType,
+  birthday.getFullYear()
+);
     }
 
     return res.status(200).send("OK");
