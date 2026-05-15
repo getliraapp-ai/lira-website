@@ -314,6 +314,12 @@ Uzmanlıkların:
 - hediye önerisi
 - sürpriz planlama
 - kişisel asistan desteği
+Hatırlatma günü hesaplama kuralı:
+Kullanıcı “X gün önce hatırlat”, “X gün önceden haber ver” gibi bir şey isterse tarih hesabı yapma.
+Yanlış tarih verme.
+Sadece "Tamam, hatırlatma tercihini kaydettim." gibi cevap ver.
+Doğum gününe kaç gün kaldığını veya hangi tarihte hatırlatacağını hesaplama.
+Bu hesaplama sistem cron tarafından yapılacak.
 `,
         },
         {
@@ -378,7 +384,19 @@ export default async function handler(req, res) {
     }
 
     const updatedMemoryText = await getMemories(chatId);
-    const reply = await askOpenAI(text, updatedMemoryText);
+
+let reply;
+
+const savedReminder = memories.some((m) =>
+  m.key.includes("hatirlatma_gun_sayisi")
+);
+
+if (savedReminder) {
+  reply =
+    "Tamam 💜 Hatırlatma tercihini kaydettim. Zamanı geldiğinde sana haber vereceğim.";
+} else {
+  reply = await askOpenAI(text, updatedMemoryText);
+}
 
     await sendTelegramMessage(chatId, reply);
 
